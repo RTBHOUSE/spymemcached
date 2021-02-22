@@ -147,7 +147,18 @@ public abstract class BaseOperationImpl extends SpyObject implements Operation {
    * Set the write buffer for this operation.
    */
   protected final synchronized void setBuffer(ByteBuffer to) {
-    assert to != null : "Trying to set buffer to null";
+    if (to == null) {
+      String msg = String.format(
+              "Trying to set buffer to null, op: %s state:%s cancelled:%s timedOut:%s timedOutUnsent:%s errored:%s",
+              getClass().getName(),
+              getState().toString(),
+              isCancelled(),
+              isTimedOut(),
+              isTimedOutUnsent(),
+              hasErrored());
+      throw new RuntimeException(msg);
+    }
+
     cmd = to;
     cmd.mark();
   }

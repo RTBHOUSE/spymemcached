@@ -202,7 +202,20 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject implements
           assert o.getState() == OperationState.WRITING;
 
           ByteBuffer obuf = o.getBuffer();
-          assert obuf != null : "Didn't get a write buffer from " + o;
+
+          if (obuf == null) {
+            String msg = String.format(
+                    "Null buffer for op: %s state:%s cancelled:%s timedOut:%s timedOutUnsent:%s errored:%s",
+                    o.getClass().getName(),
+                    o.getState().toString(),
+                    o.isCancelled(),
+                    o.isTimedOut(),
+                    o.isTimedOutUnsent(),
+                    o.hasErrored());
+
+            throw new RuntimeException(msg);
+          }
+
           int bytesToCopy = Math.min(getWbuf().remaining(), obuf.remaining());
           byte[] b = new byte[bytesToCopy];
           obuf.get(b);
