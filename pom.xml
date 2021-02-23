@@ -27,12 +27,14 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <scm>
         <url>https://github.com/couchbase/spymemcached</url>
         <connection>
             scm:git:git://github.com/couchbase/spymemcached.git
         </connection>
     </scm>
+
     <developers>
         <developer>
             <id>net.spy.spymemcached</id>
@@ -49,6 +51,11 @@
             <url>http://nexus.adpilot-rtb.net:8081/content/groups/public</url>
         </repository>
     </repositories>
+
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+    </properties>
 
     <distributionManagement>
         <repository>
