@@ -598,7 +598,7 @@ public class MemcachedConnection extends SpyThread {
             if (node.getWbuf().hasRemaining()) {
               handleWrites(node);
             }
-          } catch (IOException e) {
+          } catch (IOException | MemcachedNode.EarlyResponseException e) {
             getLogger().warn("Exception handling write", e);
             lostConnection(node);
           }
@@ -1044,7 +1044,7 @@ public class MemcachedConnection extends SpyThread {
    * @param op the operation to redistribute.
    */
   public void redistributeOperation(Operation op) {
-    if (op.isCancelled() || op.isTimedOut()) {
+    if (op.isCancelled() || op.isTimedOut() || op.getState() == OperationState.COMPLETE) {
       return;
     }
 

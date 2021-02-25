@@ -184,4 +184,11 @@ public interface Operation {
    * Sets the clone count for this operation.
    */
   void setCloneCount(int count);
+
+  /**
+   * Returns the response status code
+   *
+   * @return response status code
+   */
+  StatusCode getStatusCode();
 }

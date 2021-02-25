@@ -242,4 +242,10 @@ public interface MemcachedNode {
   MemcachedConnection getConnection();
 
   void setConnection(MemcachedConnection connection);
+
+  class EarlyResponseException extends RuntimeException {
+    public EarlyResponseException(String message) {
+      super(message);
+    }
+  }
 }

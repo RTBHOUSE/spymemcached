@@ -192,17 +192,24 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject implements
    *
    * @see net.spy.memcached.MemcachedNode#fillWriteBuffer(boolean)
    */
-  public final void fillWriteBuffer(boolean shouldOptimize) {
+  public final void fillWriteBuffer(boolean shouldOptimize) throws EarlyResponseException {
     if (toWrite == 0 && readQ.remainingCapacity() > 0) {
       getWbuf().clear();
       Operation o=getNextWritableOp();
 
       while(o != null && toWrite < getWbuf().capacity()) {
         synchronized(o) {
-          assert o.getState() == OperationState.WRITING;
-
           ByteBuffer obuf = o.getBuffer();
+
+          if (o.getState() == OperationState.COMPLETE) {
+            throw new EarlyResponseException(String.format(
+                    "Server replied before request was fully sent: op:%s responseStatusCode:%s",
+                    o.getClass().getName(),
+                    o.getStatusCode()));
+          }
+
           assert obuf != null : "Didn't get a write buffer from " + o;
+
           int bytesToCopy = Math.min(getWbuf().remaining(), obuf.remaining());
           byte[] b = new byte[bytesToCopy];
           obuf.get(b);

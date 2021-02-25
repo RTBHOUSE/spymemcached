@@ -33,6 +33,7 @@ import junit.framework.TestCase;
 import net.spy.memcached.MockMemcachedNode;
 import net.spy.memcached.TestConfig;
 import net.spy.memcached.ops.Operation;
+import net.spy.memcached.ops.StatusCode;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
 /**
@@ -98,5 +99,8 @@ public class CheckedOperationTimeoutExceptionTest extends TestCase {
     public byte[] getErrorMsg() {
       return new byte[] {};
     }
+
+    @Override
+    public StatusCode getStatusCode() { return null; }
   }
 }

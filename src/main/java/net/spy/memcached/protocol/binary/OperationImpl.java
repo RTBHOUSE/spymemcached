@@ -94,6 +94,8 @@ public  abstract class OperationImpl extends BaseOperationImpl
 
   private int payloadOffset = 0;
 
+  protected StatusCode statusCode;
+
   /**
    * Construct with opaque.
    *
@@ -169,6 +171,7 @@ public  abstract class OperationImpl extends BaseOperationImpl
       : "Unexpected response command value";
     keyLen = decodeShort(header, 2);
     errorCode = decodeShort(header, 6);
+    statusCode = StatusCode.fromBinaryCode(errorCode);
     int bytesToRead = decodeInt(header, 8);
     payload = new byte[bytesToRead];
     responseOpaque = decodeInt(header, 12);
@@ -190,7 +193,6 @@ public  abstract class OperationImpl extends BaseOperationImpl
     getLogger().debug("Reading %d payload bytes", toRead);
     buffer.get(payload, payloadOffset, toRead);
     payloadOffset += toRead;
-
 
     if (payloadOffset == payload.length) {
       finishedPayload(payload);
@@ -226,7 +228,6 @@ public  abstract class OperationImpl extends BaseOperationImpl
     if(errCode == SUCCESS) {
         return STATUS_OK;
     } else {
-        StatusCode statusCode = StatusCode.fromBinaryCode(errCode);
         errorMsg = errPl.clone();
 
         switch (errCode) {
@@ -424,4 +425,6 @@ public  abstract class OperationImpl extends BaseOperationImpl
     return errorMsg;
   }
 
+  @Override
+  public StatusCode getStatusCode() { return statusCode; }
 }

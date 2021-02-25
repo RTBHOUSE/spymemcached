@@ -47,6 +47,7 @@ abstract class OperationImpl extends BaseOperationImpl implements Operation {
   private OperationReadType readType = OperationReadType.LINE;
   private boolean foundCr;
   private byte[] errorMsg;
+  private StatusCode statusCode;
 
   protected OperationImpl() {
   }
@@ -65,6 +66,7 @@ abstract class OperationImpl extends BaseOperationImpl implements Operation {
    */
   protected final OperationStatus matchStatus(String line,
       OperationStatus... statii) {
+    statusCode = StatusCode.fromAsciiLine(line);
     OperationStatus rv = null;
     for (OperationStatus status : statii) {
       if (line.equals(status.getMessage())) {
@@ -72,7 +74,7 @@ abstract class OperationImpl extends BaseOperationImpl implements Operation {
       }
     }
     if (rv == null) {
-      rv = new OperationStatus(false, line, StatusCode.fromAsciiLine(line));
+      rv = new OperationStatus(false, line, statusCode);
     }
     return rv;
   }
@@ -171,4 +173,6 @@ abstract class OperationImpl extends BaseOperationImpl implements Operation {
     return errorMsg;
   }
 
+  @Override
+  public StatusCode getStatusCode() { return statusCode; }
 }
