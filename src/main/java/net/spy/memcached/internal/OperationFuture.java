@@ -62,6 +62,7 @@ public class OperationFuture<T>
   private Operation op;
   private final String key;
   private Long cas;
+  private Long deadline;
 
   /**
    * Create an OperationFuture for a given async operation.
@@ -107,10 +108,14 @@ public class OperationFuture<T>
    * @return true if the operation has not yet been written to the network
    */
   public boolean cancel(boolean ign) {
-    assert op != null : "No operation";
-    op.cancel();
-    notifyListeners();
-    return op.getState() == OperationState.WRITE_QUEUED;
+    if (this.latch.getCount() > 0) {
+      timeout();
+      return true;
+    } else {
+      op.cancel();
+      notifyListeners();
+      return op.getState() == OperationState.WRITE_QUEUED;
+    }
   }
 
   /**
@@ -119,10 +124,15 @@ public class OperationFuture<T>
    * @return true if the operation has not yet been written to the network
    */
   public boolean cancel() {
-    assert op != null : "No operation";
-    op.cancel();
-    notifyListeners();
-    return op.getState() == OperationState.WRITE_QUEUED;
+    if (this.latch.getCount() > 0) {
+      timeout();
+      return true;
+    } else {
+      assert op != null : "No operation";
+      op.cancel();
+      notifyListeners();
+      return op.getState() == OperationState.WRITE_QUEUED;
+    }
   }
 
   /**
@@ -159,13 +169,9 @@ public class OperationFuture<T>
   public T get(long duration, TimeUnit units) throws InterruptedException,
       TimeoutException, ExecutionException {
     if (!latch.await(duration, units)) {
-      // whenever timeout occurs, continuous timeout counter will increase by 1.
-      MemcachedConnection.opTimedOut(op);
-      if (op != null) { // op can be null on a flush
-        op.timeOut();
-      }
+      timeout();
       throw new CheckedOperationTimeoutException(
-          "Timed out waiting for operation", op);
+              "Timed out waiting for operation", op);
     }
     if (op != null && op.hasErrored()) {
       throw new ExecutionException(op.getException());
@@ -330,4 +336,11 @@ public class OperationFuture<T>
     notifyListeners();
   }
 
+  private void timeout() {
+    // whenever timeout occurs, continuous timeout counter will increase by 1.
+    MemcachedConnection.opTimedOut(op);
+    if (op != null) { // op can be null on a flush
+      op.timeOut();
+    }
+  }
 }
