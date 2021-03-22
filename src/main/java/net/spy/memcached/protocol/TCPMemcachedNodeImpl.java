@@ -155,14 +155,12 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject implements
     while (hasReadOp()) {
       op = removeCurrentReadOp();
       if (op != getCurrentWriteOp()) {
-        getLogger().warn("Discarding partially completed op: %s", op);
         op.cancel();
       }
     }
 
     while (shouldAuth && hasWriteOp()) {
       op = removeCurrentWriteOp();
-      getLogger().warn("Discarding partially completed op: %s", op);
       op.cancel();
     }
 
