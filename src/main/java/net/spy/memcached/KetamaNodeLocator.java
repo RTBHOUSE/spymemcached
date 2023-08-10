@@ -172,9 +172,7 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
   }
 
   public Iterator<MemcachedNode> getSequence(String k) {
-    // Seven searches gives us a 1 in 2^7 chance of hitting the
-    // same dead node all of the time.
-    return new KetamaIterator(k, 7, getKetamaNodes(), hashAlg);
+    return new KetamaIterator(k, 32, getKetamaNodes(), hashAlg);
   }
 
   public NodeLocator getReadonlyCopy() {
