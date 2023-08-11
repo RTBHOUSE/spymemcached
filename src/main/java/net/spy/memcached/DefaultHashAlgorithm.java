@@ -78,16 +78,6 @@ public enum DefaultHashAlgorithm implements HashAlgorithm {
   private static final long FNV_32_INIT = 2166136261L;
   private static final long FNV_32_PRIME = 16777619;
 
-  private static MessageDigest md5Digest = null;
-
-  static {
-    try {
-      md5Digest = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("MD5 not supported", e);
-    }
-  }
-
   /**
    * Compute the hash for the given key.
    *
@@ -154,9 +144,9 @@ public enum DefaultHashAlgorithm implements HashAlgorithm {
   public static byte[] computeMd5(String k) {
     MessageDigest md5;
     try {
-      md5 = (MessageDigest) md5Digest.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("clone of MD5 not supported", e);
+      md5 = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("MD5 not supported", e);
     }
     md5.update(KeyUtil.getKeyBytes(k));
     return md5.digest();
